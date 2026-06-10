@@ -8,10 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Persistência de tickets no SQLite.
- * Cada operação abre e fecha a própria conexão — adequado para uso single-user.
- */
 public class TicketDAO {
 
     private final String url;
@@ -41,14 +37,16 @@ public class TicketDAO {
     public Ticket salvar(Veiculo veiculo, Vaga vaga, LocalDateTime entrada) {
         String sql = "INSERT INTO tickets (placa, tipo, numero_vaga, entrada) VALUES (?, ?, ?, ?)";
         try (Connection conn = connect();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, veiculo.getPlaca());
             ps.setString(2, veiculo.getTipo());
             ps.setInt(3, vaga.getNumero());
             ps.setString(4, entrada.toString());
             ps.executeUpdate();
-            ResultSet keys = ps.getGeneratedKeys();
-            int id = keys.next() ? keys.getInt(1) : -1;
+            int id = -1;
+            try (ResultSet rs = conn.createStatement().executeQuery("SELECT last_insert_rowid()")) {
+                if (rs.next()) id = rs.getInt(1);
+            }
             return new Ticket(id, veiculo, vaga, entrada);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar ticket", e);
