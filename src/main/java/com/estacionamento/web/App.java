@@ -90,7 +90,7 @@ public class App {
             List<Map<String, Object>> lista = est.historico()
                 .stream()
                 .map(App::ticketParaMap)
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
             ctx.json(lista);
         });
     }
