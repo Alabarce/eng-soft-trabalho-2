@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "7000:7000"
+    volumes:
+      - db-data:/app/data
+    environment:
+      - DB_PATH=/app/data/estacionamento.db
+      - PORT=7000
+
+volumes:
+  db-data:

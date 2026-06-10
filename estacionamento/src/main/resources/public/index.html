@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estacionamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #1a1a2e;
+    --surface:  #16213e;
+    --border:   #0f3460;
+    --accent:   #e94560;
+    --text:     #ccd6f6;
+    --muted:    #a8b2d8;
+    --success:  #64ffda;
+    --font:     'JetBrains Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  header span.dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* ---- Seção ---- */
+  section { display: flex; flex-direction: column; gap: 16px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ---- Ocupação ---- */
+  .ocupacao-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .ocupacao-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+
+  .ocupacao-card .label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .ocupacao-card .numero {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .ocupacao-card .numero span {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+
+  .barra-track {
+    margin-top: 14px;
+    height: 3px;
+    background: var(--border);
+    width: 100%;
+  }
+
+  .barra-fill {
+    height: 3px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .barra-fill.livre { background: var(--success); }
+
+  /* ---- Operações ---- */
+  .ops-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .op-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .op-card .op-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  input::placeholder { color: var(--muted); opacity: 0.6; }
+
+  select option { background: var(--surface); }
+
+  button {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  button:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  button:active { opacity: 0.8; }
+
+  /* ---- Feedback ---- */
+  .feedback {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-left: 2px solid var(--border);
+    color: var(--muted);
+    min-height: 36px;
+    word-break: break-word;
+  }
+
+  .feedback.ok  { border-color: var(--success); color: var(--success); }
+  .feedback.err { border-color: var(--accent);  color: var(--accent);  }
+
+  /* ---- Histórico ---- */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+  }
+
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 10px 12px;
+    color: var(--text);
+  }
+
+  tbody tr:hover td { background: var(--surface); }
+
+  .valor-cell { color: var(--success); }
+
+  .empty-row td {
+    color: var(--muted);
+    text-align: center;
+    padding: 24px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="dot"></span>
+  <h1>Controle de Estacionamento</h1>
+</header>
+
+<main>
+
+  <!-- Ocupação -->
+  <section>
+    <div class="section-label">Ocupação atual</div>
+    <div class="ocupacao-grid">
+      <div class="ocupacao-card">
+        <div class="label">Carros — vagas livres</div>
+        <div class="numero" id="carro-livres">–<span id="carro-total"></span></div>
+        <div class="barra-track"><div class="barra-fill livre" id="barra-carro"></div></div>
+      </div>
+      <div class="ocupacao-card">
+        <div class="label">Motos — vagas livres</div>
+        <div class="numero" id="moto-livres">–<span id="moto-total"></span></div>
+        <div class="barra-track"><div class="barra-fill livre" id="barra-moto"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Operações -->
+  <section>
+    <div class="section-label">Operações</div>
+    <div class="ops-grid">
+
+      <!-- Entrada -->
+      <div class="op-card">
+        <div class="op-title">Entrada</div>
+        <input type="text" id="entrada-placa" placeholder="Placa (ex: ABC1234)" maxlength="8">
+        <select id="entrada-tipo">
+          <option value="CARRO">Carro</option>
+          <option value="MOTO">Moto</option>
+        </select>
+        <button onclick="registrarEntrada()">Registrar entrada</button>
+        <div class="feedback" id="fb-entrada"></div>
+      </div>
+
+      <!-- Saída -->
+      <div class="op-card">
+        <div class="op-title">Saída</div>
+        <input type="text" id="saida-placa" placeholder="Placa" maxlength="8">
+        <button onclick="registrarSaida()">Registrar saída</button>
+        <div class="feedback" id="fb-saida"></div>
+      </div>
+
+      <!-- Consulta -->
+      <div class="op-card">
+        <div class="op-title">Consulta</div>
+        <input type="text" id="consulta-placa" placeholder="Placa" maxlength="8">
+        <button onclick="consultarTicket()">Consultar ticket</button>
+        <div class="feedback" id="fb-consulta"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Histórico -->
+  <section>
+    <div class="section-label">Histórico de tickets fechados</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Vaga</th>
+            <th>Entrada</th>
+            <th>Saída</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="historico-body">
+          <tr class="empty-row"><td colspan="7">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  async function api(method, path, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(path, opts);
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  function feedback(id, msg, tipo) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'feedback ' + (tipo || '');
+  }
+
+  // ---- Ocupação ----
+  async function atualizarOcupacao() {
+    const { ok, data } = await api('GET', '/api/ocupacao');
+    if (!ok) return;
+
+    document.getElementById('carro-livres').childNodes[0].textContent = data.carroLivres;
+    document.getElementById('carro-total').textContent = ' / ' + data.carroTotal;
+    document.getElementById('moto-livres').childNodes[0].textContent = data.motoLivres;
+    document.getElementById('moto-total').textContent = ' / ' + data.motoTotal;
+
+    const pctCarro = (data.carroLivres / data.carroTotal) * 100;
+    const pctMoto  = (data.motoLivres  / data.motoTotal)  * 100;
+    document.getElementById('barra-carro').style.width = pctCarro + '%';
+    document.getElementById('barra-moto').style.width  = pctMoto  + '%';
+  }
+
+  // ---- Entrada ----
+  async function registrarEntrada() {
+    const placa = document.getElementById('entrada-placa').value.trim().toUpperCase();
+    const tipo  = document.getElementById('entrada-tipo').value;
+    if (!placa) { feedback('fb-entrada', 'Informe a placa.', 'err'); return; }
+
+    const { ok, data } = await api('POST', '/api/entrada', { placa, tipo });
+    if (ok) {
+      feedback('fb-entrada', `Ticket #${data.id} — Vaga ${data.vaga} — ${data.entrada}`, 'ok');
+      document.getElementById('entrada-placa').value = '';
+      atualizarOcupacao();
+      atualizarHistorico();
+    } else {
+      feedback('fb-entrada', data.erro, 'err');
+    }
+  }
+
+  // ---- Saída ----
+  async function registrarSaida() {
+    const placa = document.getElementById('saida-placa').value.trim().toUpperCase();
+    if (!placa) { feedback('fb-saida', 'Informe a placa.', 'err'); return; }
+
+    const { ok, data } = await api('POST', '/api/saida', { placa });
+    if (ok) {
+      feedback('fb-saida', `Ticket #${data.id} — R$ ${data.valor} — ${data.entrada} → ${data.saida}`, 'ok');
+      document.getElementById('saida-placa').value = '';
+      atualizarOcupacao();
+      atualizarHistorico();
+    } else {
+      feedback('fb-saida', data.erro, 'err');
+    }
+  }
+
+  // ---- Consulta ----
+  async function consultarTicket() {
+    const placa = document.getElementById('consulta-placa').value.trim().toUpperCase();
+    if (!placa) { feedback('fb-consulta', 'Informe a placa.', 'err'); return; }
+
+    const { ok, data } = await api('GET', `/api/consulta/${placa}`);
+    if (ok) {
+      feedback('fb-consulta', `Ticket #${data.id} — ${data.tipo} — Vaga ${data.vaga} — desde ${data.entrada}`, 'ok');
+    } else {
+      feedback('fb-consulta', data.erro, 'err');
+    }
+  }
+
+  // ---- Histórico ----
+  async function atualizarHistorico() {
+    const { ok, data } = await api('GET', '/api/historico');
+    const tbody = document.getElementById('historico-body');
+
+    if (!ok || data.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nenhum ticket fechado ainda.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map(t => `
+      <tr>
+        <td>#${t.id}</td>
+        <td>${t.placa}</td>
+        <td>${t.tipo}</td>
+        <td>${t.vaga}</td>
+        <td>${t.entrada}</td>
+        <td>${t.saida}</td>
+        <td class="valor-cell">R$ ${t.valor}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ---- Init ----
+  atualizarOcupacao();
+  atualizarHistorico();
+
+  // Enter nos inputs
+  ['entrada-placa'].forEach(id =>
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') registrarEntrada(); }));
+  document.getElementById('saida-placa').addEventListener('keydown', e => { if (e.key === 'Enter') registrarSaida(); });
+  document.getElementById('consulta-placa').addEventListener('keydown', e => { if (e.key === 'Enter') consultarTicket(); });
+</script>
+
+</body>
+</html>
