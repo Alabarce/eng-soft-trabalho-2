@@ -10,13 +10,13 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:       #1a1a2e;
-    --surface:  #16213e;
-    --border:   #0f3460;
-    --accent:   #e94560;
-    --text:     #ccd6f6;
-    --muted:    #a8b2d8;
-    --success:  #64ffda;
+    --bg:       #111;
+    --surface:  #1c1c1c;
+    --border:   #333;
+    --accent:   #fff;
+    --text:     #e0e0e0;
+    --muted:    #888;
+    --success:  #ccc;
     --font:     'JetBrains Mono', monospace;
   }
 
@@ -201,8 +201,8 @@
     word-break: break-word;
   }
 
-  .feedback.ok  { border-color: var(--success); color: var(--success); }
-  .feedback.err { border-color: var(--accent);  color: var(--accent);  }
+  .feedback.ok  { border-color: var(--text);   color: var(--text);   }
+  .feedback.err { border-color: var(--muted);  color: var(--muted);  }
 
   /* ---- Histórico ---- */
   .table-wrap { overflow-x: auto; }
@@ -339,10 +339,18 @@
     return { ok: res.ok, status: res.status, data };
   }
 
+  const _fbTimers = {};
   function feedback(id, msg, tipo) {
     const el = document.getElementById(id);
     el.textContent = msg;
     el.className = 'feedback ' + (tipo || '');
+    clearTimeout(_fbTimers[id]);
+    if (tipo === 'ok') {
+      _fbTimers[id] = setTimeout(() => {
+        el.textContent = '';
+        el.className = 'feedback';
+      }, 4000);
+    }
   }
 
   // ---- Ocupação ----
@@ -371,6 +379,7 @@
     if (ok) {
       feedback('fb-entrada', `Ticket #${data.id} — Vaga ${data.vaga} — ${data.entrada}`, 'ok');
       document.getElementById('entrada-placa').value = '';
+      document.getElementById('entrada-tipo').value = 'CARRO';
       atualizarOcupacao();
       atualizarHistorico();
     } else {

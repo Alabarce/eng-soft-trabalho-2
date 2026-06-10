@@ -27,7 +27,6 @@ public class App {
             config.staticFiles.add("/public");
         }).start(port);
 
-        // ---------- Ocupação ----------
         app.get("/api/ocupacao", ctx -> {
             Map<String, Object> resp = new HashMap<>();
             resp.put("carroLivres", est.vagasLivresCarro());
@@ -37,7 +36,6 @@ public class App {
             ctx.json(resp);
         });
 
-        // ---------- Entrada ----------
         app.post("/api/entrada", ctx -> {
             Map<String, String> body = ctx.bodyAsClass(Map.class);
             String placa = body.get("placa");
@@ -56,7 +54,6 @@ public class App {
             ctx.json(ticketParaMap(t));
         });
 
-        // ---------- Saída ----------
         app.post("/api/saida", ctx -> {
             Map<String, String> body = ctx.bodyAsClass(Map.class);
             String placa = body.get("placa");
@@ -74,7 +71,6 @@ public class App {
             ctx.json(ticketParaMap(t));
         });
 
-        // ---------- Consulta ----------
         app.get("/api/consulta/{placa}", ctx -> {
             String placa = ctx.pathParam("placa");
             Optional<Ticket> opt = est.consultarPorPlaca(placa);
@@ -85,7 +81,6 @@ public class App {
             ctx.json(ticketParaMap(opt.get()));
         });
 
-        // ---------- Histórico ----------
         app.get("/api/historico", ctx -> {
             List<Map<String, Object>> lista = est.historico()
                 .stream()
