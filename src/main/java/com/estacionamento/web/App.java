@@ -81,6 +81,8 @@ public class App {
             ctx.json(ticketParaMap(opt.get()));
         });
 
+        app.get("/api/vagas", ctx -> ctx.json(est.vagasComStatus()));
+
         app.get("/api/historico", ctx -> {
             List<Map<String, Object>> lista = est.historico()
                 .stream()

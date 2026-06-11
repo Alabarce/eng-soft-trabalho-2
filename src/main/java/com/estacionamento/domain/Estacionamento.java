@@ -4,7 +4,9 @@ import com.estacionamento.dao.TicketDAO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -97,5 +99,22 @@ public class Estacionamento {
 
     public List<Ticket> historico() {
         return ticketDAO.listarFechados();
+    }
+
+    public List<Map<String, Object>> vagasComStatus() {
+        Map<Integer, String> vagaPlaca = new HashMap<>();
+        for (Ticket t : ticketDAO.listarAbertos())
+            vagaPlaca.put(t.getVaga().getNumero(), t.getVeiculo().getPlaca());
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Vaga v : vagas) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("numero", v.getNumero());
+            m.put("tipo", v.getTipo().name());
+            m.put("ocupada", v.isOcupada());
+            if (v.isOcupada()) m.put("placa", vagaPlaca.get(v.getNumero()));
+            result.add(m);
+        }
+        return result;
     }
 }

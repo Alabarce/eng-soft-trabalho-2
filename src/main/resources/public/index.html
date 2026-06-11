@@ -52,14 +52,75 @@
     display: inline-block;
   }
 
-  main {
-    max-width: 900px;
+  .layout {
+    max-width: 1180px;
     margin: 0 auto;
     padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  main {
     display: flex;
     flex-direction: column;
     gap: 40px;
+    min-width: 0;
   }
+
+  /* ---- Painel de vagas ---- */
+  .vagas-panel {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .vagas-group { display: flex; flex-direction: column; gap: 8px; }
+
+  .vagas-group-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .vagas-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+  }
+
+  .vaga-slot {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 5px 3px;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .vaga-slot .vnum {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .vaga-slot .vplaca {
+    font-size: 8px;
+    color: var(--muted);
+    word-break: break-all;
+    min-height: 10px;
+  }
+
+  .vaga-slot.ocupada {
+    background: #222;
+    border-color: #444;
+  }
+
+  .vaga-slot.ocupada .vnum  { color: var(--text); }
+  .vaga-slot.ocupada .vplaca { color: var(--success); }
 
   /* ---- Seção ---- */
   section { display: flex; flex-direction: column; gap: 16px; }
@@ -250,6 +311,7 @@
   <h1>Controle de Estacionamento</h1>
 </header>
 
+<div class="layout">
 <main>
 
   <!-- Ocupação -->
@@ -330,6 +392,20 @@
 
 </main>
 
+<aside class="vagas-panel">
+  <div class="section-label">Vagas</div>
+  <div class="vagas-group">
+    <div class="vagas-group-label">Carros</div>
+    <div class="vagas-grid" id="grid-carros"></div>
+  </div>
+  <div class="vagas-group">
+    <div class="vagas-group-label">Motos</div>
+    <div class="vagas-grid" id="grid-motos"></div>
+  </div>
+</aside>
+
+</div><!-- /.layout -->
+
 <script>
   async function api(method, path, body) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -381,6 +457,7 @@
       document.getElementById('entrada-placa').value = '';
       document.getElementById('entrada-tipo').value = 'CARRO';
       atualizarOcupacao();
+      atualizarVagas();
       atualizarHistorico();
     } else {
       feedback('fb-entrada', data.erro, 'err');
@@ -397,6 +474,7 @@
       feedback('fb-saida', `Ticket #${data.id} — R$ ${data.valor} — ${data.entrada} → ${data.saida}`, 'ok');
       document.getElementById('saida-placa').value = '';
       atualizarOcupacao();
+      atualizarVagas();
       atualizarHistorico();
     } else {
       feedback('fb-saida', data.erro, 'err');
@@ -414,6 +492,25 @@
     } else {
       feedback('fb-consulta', data.erro, 'err');
     }
+  }
+
+  // ---- Vagas ----
+  async function atualizarVagas() {
+    const { ok, data } = await api('GET', '/api/vagas');
+    if (!ok) return;
+
+    const carros = data.filter(v => v.tipo === 'CARRO');
+    const motos  = data.filter(v => v.tipo === 'MOTO');
+
+    function renderSlot(v) {
+      const cls   = v.ocupada ? 'ocupada' : 'livre';
+      const num   = String(v.numero).padStart(2, '0');
+      const label = v.ocupada ? v.placa : '—';
+      return `<div class="vaga-slot ${cls}"><div class="vnum">${num}</div><div class="vplaca">${label}</div></div>`;
+    }
+
+    document.getElementById('grid-carros').innerHTML = carros.map(renderSlot).join('');
+    document.getElementById('grid-motos').innerHTML  = motos.map(renderSlot).join('');
   }
 
   // ---- Histórico ----
@@ -441,6 +538,7 @@
 
   // ---- Init ----
   atualizarOcupacao();
+  atualizarVagas();
   atualizarHistorico();
 
   // Enter nos inputs
