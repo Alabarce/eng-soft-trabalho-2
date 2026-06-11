@@ -9,10 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Gerencia vagas e coordena entradas/saídas.
- * Estado de vagas é mantido em memória; tickets são persistidos via TicketDAO.
- */
 public class Estacionamento {
 
     private final List<Vaga> vagas = new ArrayList<>();
@@ -30,7 +26,6 @@ public class Estacionamento {
         sincronizarVagasComBanco();
     }
 
-    /** Marca vagas como ocupadas com base nos tickets abertos persistidos. */
     private void sincronizarVagasComBanco() {
         List<Ticket> abertos = ticketDAO.listarAbertos();
         for (Ticket t : abertos) {
@@ -53,9 +48,7 @@ public class Estacionamento {
 
         Vaga vaga = vagaLivre.get();
         vaga.ocupar();
-
-        Ticket ticket = ticketDAO.salvar(veiculo, vaga, LocalDateTime.now());
-        return ticket;
+        return ticketDAO.salvar(veiculo, vaga, LocalDateTime.now());
     }
 
     public Ticket registrarSaida(String placa) {

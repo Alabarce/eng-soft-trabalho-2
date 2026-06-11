@@ -3,10 +3,6 @@ package com.estacionamento.domain;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-/**
- * Calcula o valor a pagar com base no tipo do veículo e no tempo de permanência.
- * Regra: hora cheia ou fração (Math.ceil), conforme RN01.
- */
 public class CalculadoraTarifa {
 
     public double calcular(Veiculo veiculo, LocalDateTime entrada, LocalDateTime saida) {

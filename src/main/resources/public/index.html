@@ -314,7 +314,6 @@
 <div class="layout">
 <main>
 
-  <!-- Ocupação -->
   <section>
     <div class="section-label">Ocupação atual</div>
     <div class="ocupacao-grid">
@@ -331,12 +330,10 @@
     </div>
   </section>
 
-  <!-- Operações -->
   <section>
     <div class="section-label">Operações</div>
     <div class="ops-grid">
 
-      <!-- Entrada -->
       <div class="op-card">
         <div class="op-title">Entrada</div>
         <input type="text" id="entrada-placa" placeholder="Placa (ex: ABC1234)" maxlength="8">
@@ -348,7 +345,6 @@
         <div class="feedback" id="fb-entrada"></div>
       </div>
 
-      <!-- Saída -->
       <div class="op-card">
         <div class="op-title">Saída</div>
         <input type="text" id="saida-placa" placeholder="Placa" maxlength="8">
@@ -356,7 +352,6 @@
         <div class="feedback" id="fb-saida"></div>
       </div>
 
-      <!-- Consulta -->
       <div class="op-card">
         <div class="op-title">Consulta</div>
         <input type="text" id="consulta-placa" placeholder="Placa" maxlength="8">
@@ -367,7 +362,6 @@
     </div>
   </section>
 
-  <!-- Histórico -->
   <section>
     <div class="section-label">Histórico de tickets fechados</div>
     <div class="table-wrap">
@@ -429,7 +423,6 @@
     }
   }
 
-  // ---- Ocupação ----
   async function atualizarOcupacao() {
     const { ok, data } = await api('GET', '/api/ocupacao');
     if (!ok) return;
@@ -445,7 +438,6 @@
     document.getElementById('barra-moto').style.width  = pctMoto  + '%';
   }
 
-  // ---- Entrada ----
   async function registrarEntrada() {
     const placa = document.getElementById('entrada-placa').value.trim().toUpperCase();
     const tipo  = document.getElementById('entrada-tipo').value;
@@ -464,7 +456,6 @@
     }
   }
 
-  // ---- Saída ----
   async function registrarSaida() {
     const placa = document.getElementById('saida-placa').value.trim().toUpperCase();
     if (!placa) { feedback('fb-saida', 'Informe a placa.', 'err'); return; }
@@ -481,7 +472,6 @@
     }
   }
 
-  // ---- Consulta ----
   async function consultarTicket() {
     const placa = document.getElementById('consulta-placa').value.trim().toUpperCase();
     if (!placa) { feedback('fb-consulta', 'Informe a placa.', 'err'); return; }
@@ -494,7 +484,6 @@
     }
   }
 
-  // ---- Vagas ----
   async function atualizarVagas() {
     const { ok, data } = await api('GET', '/api/vagas');
     if (!ok) return;
@@ -513,7 +502,6 @@
     document.getElementById('grid-motos').innerHTML  = motos.map(renderSlot).join('');
   }
 
-  // ---- Histórico ----
   async function atualizarHistorico() {
     const { ok, data } = await api('GET', '/api/historico');
     const tbody = document.getElementById('historico-body');
@@ -536,12 +524,10 @@
     `).join('');
   }
 
-  // ---- Init ----
   atualizarOcupacao();
   atualizarVagas();
   atualizarHistorico();
 
-  // Enter nos inputs
   ['entrada-placa'].forEach(id =>
     document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') registrarEntrada(); }));
   document.getElementById('saida-placa').addEventListener('keydown', e => { if (e.key === 'Enter') registrarSaida(); });
