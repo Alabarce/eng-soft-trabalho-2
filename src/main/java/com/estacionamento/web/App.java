@@ -4,7 +4,6 @@ import com.estacionamento.dao.TicketDAO;
 import com.estacionamento.domain.Estacionamento;
 import com.estacionamento.domain.Ticket;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -37,9 +36,9 @@ public class App {
         });
 
         app.post("/api/entrada", ctx -> {
-            Map<String, String> body = ctx.bodyAsClass(Map.class);
-            String placa = body.get("placa");
-            String tipo = body.get("tipo");
+            EntradaRequest body = ctx.bodyAsClass(EntradaRequest.class);
+            String placa = body.placa;
+            String tipo = body.tipo;
 
             if (placa == null || placa.isBlank() || tipo == null) {
                 ctx.status(400).json(erro("Placa e tipo são obrigatórios."));
@@ -55,8 +54,8 @@ public class App {
         });
 
         app.post("/api/saida", ctx -> {
-            Map<String, String> body = ctx.bodyAsClass(Map.class);
-            String placa = body.get("placa");
+            SaidaRequest body = ctx.bodyAsClass(SaidaRequest.class);
+            String placa = body.placa;
 
             if (placa == null || placa.isBlank()) {
                 ctx.status(400).json(erro("Placa é obrigatória."));
@@ -108,4 +107,7 @@ public class App {
     private static Map<String, String> erro(String msg) {
         return Map.of("erro", msg);
     }
+
+    private static class EntradaRequest { public String placa; public String tipo; }
+    private static class SaidaRequest   { public String placa; }
 }
